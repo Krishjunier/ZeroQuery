@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Disciplines</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4">Manage Disciplines</h2>
+
+    <form id="disciplineForm">
+      <div class="mb-3">
+        <label for="name" class="form-label">Discipline Name</label>
+        <input type="text" class="form-control" id="name" required />
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Add Discipline</button>
+    </form>
+
+    <hr class="my-4" />
+
+    <h4>Available Disciplines</h4>
+    <ul class="list-group" id="disciplineList"></ul>
+  </div>
+
+  <script>
+    document.getElementById("disciplineForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById("name").value,
+        description: document.getElementById("description").value,
+      };
+
+      const response = await fetch("http://127.0.0.1:8000/api/disciplines/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Discipline added successfully!");
+        e.target.reset();
+        loadDisciplines();
+      } else {
+        alert("Error adding discipline.");
+      }
+    });
+
+    async function loadDisciplines() {
+      const response = await fetch("http://127.0.0.1:8000/api/disciplines/");
+      const disciplines = await response.json();
+      const list = document.getElementById("disciplineList");
+      list.innerHTML = "";
+
+      disciplines.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `<strong>${item.name}</strong><br><small>${item.description}</small>`;
+        list.appendChild(li);
+      });
+    }
+
+    loadDisciplines();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

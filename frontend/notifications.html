@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Notifications</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4">Your Notifications</h2>
+
+    <div id="notificationList">
+      <div class="alert alert-info" role="alert">
+        Loading your notifications...
+      </div>
+    </div>
+
+    <script>
+      async function loadNotifications() {
+        const response = await fetch("http://127.0.0.1:8000/api/notifications/");
+        const notifications = await response.json();
+        const list = document.getElementById("notificationList");
+        list.innerHTML = "";  // Clear previous content
+
+        if (notifications.length === 0) {
+          list.innerHTML = "<div class='alert alert-light' role='alert'>No new notifications.</div>";
+        } else {
+          notifications.forEach((notification) => {
+            const notificationItem = document.createElement("div");
+            notificationItem.className = "alert alert-info mb-2 d-flex justify-content-between align-items-center";
+            notificationItem.innerHTML = `
+              <div>
+                <strong>${notification.message}</strong><br>
+                <small class="text-muted">Created at: ${new Date(notification.created_at).toLocaleString()}</small>
+              </div>
+              <button class="btn btn-sm btn-success" onclick="markAsRead(${notification.id})">Mark as Read</button>
+            `;
+            list.appendChild(notificationItem);
+          });
+        }
+      }
+
+      async function markAsRead(id) {
+        const response = await fetch(`http://127.0.0.1:8000/api/notifications/${id}/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ is_read: true }),
+        });
+
+        if (response.ok) {
+          loadNotifications();  // Reload notifications
+        } else {
+          alert("Error marking notification as read.");
+        }
+      }
+
+      loadNotifications();
+    </script>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

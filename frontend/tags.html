@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Tags</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4">Manage Tags</h2>
+
+    <form id="tagForm">
+      <div class="mb-3">
+        <label for="tagName" class="form-label">Tag Name</label>
+        <input type="text" class="form-control" id="tagName" placeholder="Enter tag name" required />
+      </div>
+      <button type="submit" class="btn btn-primary">Create Tag</button>
+    </form>
+
+    <hr class="my-4" />
+
+    <h4>Existing Tags</h4>
+    <ul class="list-group" id="tagList"></ul>
+  </div>
+
+  <script>
+    document.getElementById("tagForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById("tagName").value,
+      };
+
+      const response = await fetch("http://127.0.0.1:8000/api/tags/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Tag created successfully!");
+        e.target.reset();
+        loadTags();
+      } else {
+        alert("Error creating tag.");
+      }
+    });
+
+    async function loadTags() {
+      const response = await fetch("http://127.0.0.1:8000/api/tags/");
+      const tags = await response.json();
+      const list = document.getElementById("tagList");
+      list.innerHTML = "";
+
+      tags.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `<strong>${item.name}</strong><br>Created on: ${new Date(item.created_at).toLocaleString()}`;
+        list.appendChild(li);
+      });
+    }
+
+    loadTags();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

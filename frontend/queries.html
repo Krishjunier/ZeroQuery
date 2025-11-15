@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Queries</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="mb-4">Manage Academic Queries</h2>
+
+    <form id="queryForm">
+      <div class="mb-3">
+        <label for="title" class="form-label">Query Title</label>
+        <input type="text" class="form-control" id="title" required />
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Query Description</label>
+        <textarea class="form-control" id="description" rows="3" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="discipline" class="form-label">Discipline ID</label>
+        <input type="number" class="form-control" id="discipline" placeholder="Enter existing discipline ID" required />
+      </div>
+      <button type="submit" class="btn btn-success">Add Query</button>
+    </form>
+
+    <hr class="my-4" />
+
+    <h4>Available Queries</h4>
+    <ul class="list-group" id="queryList"></ul>
+  </div>
+
+  <script>
+    document.getElementById("queryForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        discipline: parseInt(document.getElementById("discipline").value),
+      };
+
+      const response = await fetch("http://127.0.0.1:8000/api/queries/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Query created successfully!");
+        e.target.reset();
+        loadQueries();
+      } else {
+        alert("Error creating query.");
+      }
+    });
+
+    async function loadQueries() {
+      const response = await fetch("http://127.0.0.1:8000/api/queries/");
+      const queries = await response.json();
+      const list = document.getElementById("queryList");
+      list.innerHTML = "";
+
+      queries.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `<strong>${item.title}</strong><br><small>${item.description}</small> <br>Discipline ID: ${item.discipline}`;
+        list.appendChild(li);
+      });
+    }
+
+    loadQueries();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
