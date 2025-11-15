@@ -1,0 +1,6 @@
+# Add your Python dependencies here
+Django
+djangorestframework
+channels
+djongo
+channels_redis
